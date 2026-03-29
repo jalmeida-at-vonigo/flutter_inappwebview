@@ -20,7 +20,21 @@ public class CustomSchemeHandler: NSObject, WKURLSchemeHandler {
         let callback = WebViewChannelDelegate.LoadResourceWithCustomSchemeCallback()
         callback.nonNullSuccess = { (response: CustomSchemeResponse) in
             if (self.schemeHandlers[urlSchemeTask.hash] != nil) {
-                let urlResponse = URLResponse(url: request.url, mimeType: response.contentType, expectedContentLength: -1, textEncodingName: response.contentEncoding)
+                let headerFields = [
+                    "Content-Type": response.contentType,
+                    "Content-Length": String(response.data.count)
+                ]
+                let urlResponse = HTTPURLResponse(
+                    url: request.url,
+                    statusCode: 200,
+                    httpVersion: "HTTP/1.1",
+                    headerFields: headerFields
+                ) ?? URLResponse(
+                    url: request.url,
+                    mimeType: response.contentType,
+                    expectedContentLength: response.data.count,
+                    textEncodingName: response.contentEncoding
+                )
                 urlSchemeTask.didReceive(urlResponse)
                 urlSchemeTask.didReceive(response.data)
                 urlSchemeTask.didFinish()
