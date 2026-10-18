@@ -31,6 +31,11 @@ public class WebResourceRequest: NSObject {
         self.url = fromURLRequest.url ?? URL(string: "about:blank")!
         self.headers = fromURLRequest.allHTTPHeaderFields
         self.method = fromURLRequest.httpMethod ?? "GET"
+        // URLRequest has no frame info: for a main frame load, mainDocumentURL is the request URL itself,
+        // while subresources and iframes have the URL of the main document
+        if let mainDocumentURL = fromURLRequest.mainDocumentURL {
+            self.isForMainFrame = mainDocumentURL.absoluteString == self.url.absoluteString
+        }
     }
     
     public init(fromWKNavigationResponse: WKNavigationResponse) {
